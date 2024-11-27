@@ -15,12 +15,12 @@ import java.util.List;
 public class PersonController {
     private final PersonService personService;
 
-    @GetMapping
+    @GetMapping("/get_all_persons")
     public List<PersonResponse> getAllPersons() {
         return personService.getAllPersons();
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public PersonResponse createPerson(@RequestBody @Valid PersonRequest personRequest) {
         return personService.createPerson(personRequest);
     }

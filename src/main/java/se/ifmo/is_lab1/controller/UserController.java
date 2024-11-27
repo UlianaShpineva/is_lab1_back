@@ -13,7 +13,7 @@ import se.ifmo.is_lab1.service.UserService;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-public class RegisterController {
+public class UserController {
     private final UserService userService;
 
     @PostMapping("/request-admin-role")

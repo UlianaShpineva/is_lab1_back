@@ -22,7 +22,7 @@ public class Coordinates {
     @Column(nullable = false)
     private Float x; //Максимальное значение поля: 953, Поле не может быть null
 
-    @Column(nullable = false    )
+    @Column
     private float y; //Значение поля должно быть больше -955
 
     @OneToMany(mappedBy = "coordinates")

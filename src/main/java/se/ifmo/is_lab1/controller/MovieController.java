@@ -29,34 +29,35 @@ public class MovieController {
         return movieService.getMovie(id);
     }
 
-    @GetMapping
-    public Page<MovieResponse> getAllMovies(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection,
-            @RequestParam(required = false) String groupName,
-            @RequestParam(required = false) String adminName
-    ) {
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return movieService.getAllMovies(pageable, groupName, adminName);
+    @GetMapping("/all_movies")
+//    public Page<MovieResponse> getAllMovies(
+//            @RequestParam(defaultValue = "0") Integer page,
+//            @RequestParam(defaultValue = "10") Integer size,
+//            @RequestParam(defaultValue = "id") String sortBy,
+//            @RequestParam(defaultValue = "asc") String sortDirection,
+//            @RequestParam(required = false) String movieName,
+//            @RequestParam(required = false) String directorName
+//    ) {
+    public List<MovieResponse> getAllMovies(){
+//        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+//                ? Sort.Direction.DESC
+//                : Sort.Direction.ASC;
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return movieService.getAllMovies();//pageable, movieName, adminName);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public MovieResponse createMovie(@RequestBody @Valid MovieRequest movieRequest) {
         String username = getCurrentUser();
         return movieService.createMovie(movieRequest, username);
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/delete/{id}")
     public MovieResponse deleteMovie(@PathVariable Integer id) {
         return movieService.deleteMovie(id);
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public MovieResponse updateMovie(@RequestBody @Valid UpdateMovieRequest movieRequest) {
         String username = getCurrentUser();
         return movieService.updateMovie(movieRequest, username);

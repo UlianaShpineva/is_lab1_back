@@ -6,13 +6,15 @@ import lombok.*;
 import se.ifmo.is_lab1.model.enums.MovieGenre;
 import se.ifmo.is_lab1.model.enums.MpaaRating;
 
+import java.io.Serializable;
+
 @Entity
 @NoArgsConstructor
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Movie {
+public class Movie implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
@@ -37,7 +39,7 @@ public class Movie {
     @Column
     private int totalBoxOffice; //Значение поля должно быть больше 0
 
-    @Column(nullable = false)
+    @Column
     private MpaaRating mpaaRating; //Поле может быть null
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -49,13 +51,13 @@ public class Movie {
     private Person screenwriter;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn
     private Person operator; //Поле может быть null
 
     @Column
     private int length; //Значение поля должно быть больше 0
 
-    @Column(nullable = false)
+    @Column
     private Long goldenPalmCount; //Значение поля должно быть больше 0, Поле может быть null
 
     @Column(nullable = false)
@@ -64,12 +66,12 @@ public class Movie {
     @Column(nullable = false)
     private String tagline; //Длина строки не должна быть больше 143, Поле не может быть null
 
-    @Column(nullable = false)
+    @Column
     private MovieGenre genre; //Поле может быть null
 
-    @Column
-    @NotNull
-    private Boolean isEditable = Boolean.FALSE;
+//    @Column
+//    @NotNull
+//    private Boolean isEditable = Boolean.FALSE;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)

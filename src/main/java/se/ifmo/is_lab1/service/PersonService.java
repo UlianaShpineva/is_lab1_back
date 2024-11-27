@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import se.ifmo.is_lab1.dto.request.PersonRequest;
 import se.ifmo.is_lab1.dto.response.PersonResponse;
 import se.ifmo.is_lab1.exceptions.LocationNotFoundException;
+import se.ifmo.is_lab1.model.Location;
 import se.ifmo.is_lab1.model.Person;
 import se.ifmo.is_lab1.repository.LocationRepository;
 import se.ifmo.is_lab1.repository.PersonRepository;
@@ -21,17 +22,20 @@ public class PersonService {
         return persons
                 .stream()
                 .map(this::toPersonResponse)
-                .sorted()
                 .toList();
     }
 
     public PersonResponse createPerson(PersonRequest personRequest) {
         Person person = toPerson(personRequest);
 
-        person.setLocation(
-                locationRepository.findById(personRequest.getLocationId())
-                        .orElseThrow(LocationNotFoundException::new)
-        );
+        if (personRequest.getLocationId() != null) {
+            person.setLocation(
+                    locationRepository.findById(personRequest.getLocationId())
+                            .orElseThrow(LocationNotFoundException::new)
+            );
+        } else {
+            person.setLocation(null);
+        }
         person = personRepository.save(person);
         return toPersonResponse(person);
     }

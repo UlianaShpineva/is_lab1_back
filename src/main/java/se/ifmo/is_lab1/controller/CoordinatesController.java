@@ -15,12 +15,12 @@ import java.util.List;
 public class CoordinatesController {
     private final CoordinatesService coordinatesService;
 
-    @GetMapping
+    @GetMapping("/get_all_coordinates")
     public List<CoordinatesResponse> getAllCoordinates() {
         return coordinatesService.getAllCoordinates();
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public CoordinatesResponse createCoordinates(@RequestBody @Valid CoordinatesRequest coordinatesRequest) {
         return coordinatesService.createCoordinates(coordinatesRequest);
     }

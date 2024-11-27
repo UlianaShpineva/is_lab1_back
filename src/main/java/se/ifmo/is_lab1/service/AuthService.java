@@ -44,7 +44,8 @@ public class AuthService {
 //        String token = jwtUtils.generateJwtToken(user.getUsername());
         return new RegisterResponse(
                 user.getUsername(),
-                user.getRole()
+                user.getRole(),
+                jwtUtils.generateJwtToken(user.getUsername())
         );
     }
 
@@ -58,7 +59,19 @@ public class AuthService {
 
         String token = jwtUtils.generateJwtToken(user.getUsername());
         return new AuthResponse(
-                token
+                token,
+                user.getUsername(),
+                user.getRole()
         );
+    }
+
+    public AuthResponse checkAuth(User user) {
+        if (user != null && userRepository.existsByUsername(user.getUsername()))
+            return AuthResponse.builder()
+                    .username(user.getUsername())
+                    .token(jwtUtils.generateJwtToken(user.getUsername()))
+                    .role(user.getRole())
+                    .build();
+        return AuthResponse.builder().build();
     }
 }

@@ -11,7 +11,6 @@ public class CoordinatesRequest {
     @Max(953)
     private Float x; //Максимальное значение поля: 953, Поле не может быть null
 
-    @NotNull
     @Min(-954)
     private float y; //Значение поля должно быть больше -955
 }

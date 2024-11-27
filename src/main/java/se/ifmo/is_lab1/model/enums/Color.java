@@ -5,5 +5,5 @@ public enum Color {
     BLACK,
     BLUE,
     YELLOW,
-    DROWN;
+    BROWN;
 }

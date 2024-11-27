@@ -19,7 +19,6 @@ public class LocationService {
         return locations
                 .stream()
                 .map(this::toLocationResponse)
-                .sorted()
                 .toList();
     }
 

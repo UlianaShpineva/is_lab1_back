@@ -9,7 +9,6 @@ public class LocationRequest {
     @NotNull
     private Long x; //Поле не может быть null
 
-    @NotNull
     private double y;
 
     @NotNull

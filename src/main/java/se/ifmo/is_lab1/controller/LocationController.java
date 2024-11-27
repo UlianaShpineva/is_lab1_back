@@ -15,12 +15,12 @@ import java.util.List;
 public class LocationController {
     private final LocationService locationService;
 
-    @GetMapping
+    @GetMapping("/get_all_locations")
     public List<LocationResponse> getAllLocations() {
         return locationService.getAllLocations();
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public LocationResponse createLocation(@RequestBody @Valid LocationRequest locationRequest) {
         return locationService.createLocation(locationRequest);
     }

@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.is_lab1.dto.request.MovieRequest;
 import se.ifmo.is_lab1.dto.request.UpdateMovieRequest;
 import se.ifmo.is_lab1.dto.response.MovieResponse;
+import se.ifmo.is_lab1.dto.response.UserResponse;
 import se.ifmo.is_lab1.exceptions.*;
+import se.ifmo.is_lab1.model.Location;
 import se.ifmo.is_lab1.model.Movie;
 import se.ifmo.is_lab1.model.Person;
 import se.ifmo.is_lab1.model.User;
@@ -44,14 +46,19 @@ public class MovieService {
         return toMovieResponse(movie);
     }
 
-    public Page<MovieResponse> getAllMovies(Pageable pageable,
-                                            String movieName,
-                                            String directorName) {
-        Page<Movie> movies =
-                movieRepository.findByFilter(
-                        movieName, directorName, pageable
-                );
-        return movies.map(this::toMovieResponse);
+    public List<MovieResponse> getAllMovies(){//Pageable pageable, Page<MovieResponse> getAllMovies(){//Pageable pageable,
+//                                            String movieName,
+//                                            String directorName) {
+//        Page<Movie> movies =
+//                movieRepository.findByFilter(
+//                        movieName, directorName, pageable
+//                );
+        List<Movie> movies = movieRepository.findAll();
+        return movies
+                .stream()
+                .map(this::toMovieResponse)
+                .toList();
+//        return movies.map(this::toMovieResponse);
     }
 
     public MovieResponse createMovie(MovieRequest movieRequest, String username) {
@@ -71,12 +78,16 @@ public class MovieService {
                     personRepository.findById(movieRequest.getScreenwriterId())
                             .orElseThrow(PersonNotFoundException::new)
             );
+        } else {
+            requestObject.setScreenwriter(null);
         }
         if (movieRequest.getOperatorId() != null) {
             requestObject.setOperator(
                     personRepository.findById(movieRequest.getOperatorId())
                             .orElseThrow(PersonNotFoundException::new)
             );
+        } else {
+            requestObject.setOperator(null);
         }
         requestObject.setCoordinates(
                 coordinatesRepository.findById(movieRequest.getCoordinatesId())
@@ -93,7 +104,7 @@ public class MovieService {
         Movie existingMovie = movieRepository.findById(movieRequest.getId())
                 .orElseThrow(MovieNotFoundException::new);
 
-        if (!(existingMovie.getIsEditable() && user.getRole().equals(Role.ADMIN)) ||
+        if (!(user.getRole().equals(Role.ADMIN)) || //existingMovie.getIsEditable() &&
                 !existingMovie
                         .getUser()
                         .getId()
@@ -141,6 +152,11 @@ public class MovieService {
                 .orElseThrow(MovieNotFoundException::new);
 
         if (movie.getDirector().getMovies().size() == 1 && movie.getCoordinates().getMovies().size() == 1
+                && movie.getDirector().getLocation() == null) {
+            movieRepository.deleteById(objectId);
+            personRepository.deleteById(movie.getDirector().getId());
+            coordinatesRepository.deleteById(movie.getCoordinates().getId());
+        } else if (movie.getDirector().getMovies().size() == 1 && movie.getCoordinates().getMovies().size() == 1
         && movie.getDirector().getLocation().getPersons().size() == 1) {
             movieRepository.deleteById(objectId);
             personRepository.deleteById(movie.getDirector().getId());
@@ -171,6 +187,13 @@ public class MovieService {
                 .usaBoxOffice(movie.getUsaBoxOffice())
                 .tagline(movie.getTagline())
                 .genre(movie.getGenre())
+                .user(UserResponse
+                        .builder()
+                        .username(movie.getUser().getUsername())
+                        .id(movie.getUser().getId())
+                        .role(movie.getUser().getRole())
+                        .build()
+                )
                 .build();
     }
 
@@ -188,7 +211,7 @@ public class MovieService {
                 .usaBoxOffice(req.getUsaBoxOffice())
                 .tagline(req.getTagline())
                 .genre(req.getGenre())
-                .isEditable(req.getIsEditable())
+//                .isEditable(req.getIsEditable())
                 .build();
     }
 
@@ -219,19 +242,21 @@ public class MovieService {
         return movieRepository.findMoviesByTaglinePrefix(prefix)
                 .stream()
                 .map(this::toMovieResponse)
-                .sorted()
                 .toList();
     }
 
+    @Transactional
     public void redistributeOscars(MovieGenre sourceGenre, MovieGenre targetGenre) {
         Integer totalOscars = movieRepository.findTotalOscarsByGenre(sourceGenre);
         Long targetMoviesCnt = movieRepository.countMoviesByGenre(targetGenre);
         if (totalOscars != null && targetMoviesCnt > 0) {
             int newOscarCount = totalOscars / targetMoviesCnt.intValue();
             movieRepository.redistributeOscars(newOscarCount, targetGenre);
+            movieRepository.setZeroOscars(sourceGenre);
         }
     }
 
+    @Transactional
     public void addOscarsToLongMovies(int length) {
         movieRepository.addOscarsToLongMovies(length);
     }

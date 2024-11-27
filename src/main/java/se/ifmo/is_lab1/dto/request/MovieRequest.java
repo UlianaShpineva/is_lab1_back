@@ -24,32 +24,25 @@ public class MovieRequest {
     @Positive
     private Long oscarsCount; //Значение поля должно быть больше 0, Поле не может быть null
 
-    @NotNull
     @Positive
     private long budget; //Значение поля должно быть больше 0
 
-    @NotNull
     @Positive
     private int totalBoxOffice; //Значение поля должно быть больше 0
 
-    @NotNull
     private MpaaRating mpaaRating; //Поле может быть null
 
 
     @NotNull
-    private Long directorId; //Поле может быть null
+    private Long directorId;
 
-    @NotNull
-    private Long screenwriterId;
+    private Long screenwriterId; //Поле может быть null
 
-    @NotNull
-    private Long operatorId; //Поле может быть null //Person
+    private Long operatorId; //Поле может быть null
 
-    @NotNull
     @Positive
     private int length; //Значение поля должно быть больше 0
 
-    @NotNull
     @Positive
     private Long goldenPalmCount; //Значение поля должно быть больше 0, Поле может быть null
 
@@ -61,9 +54,8 @@ public class MovieRequest {
     @Length(max = 143)
     private String tagline; //Длина строки не должна быть больше 143, Поле не может быть null
 
-    @NotNull
     private MovieGenre genre; //Поле может быть null
 
-    @NotNull
-    private Boolean isEditable;// = Boolean.TRUE;
+//    @NotNull
+//    private Boolean isEditable;// = Boolean.TRUE;
 }

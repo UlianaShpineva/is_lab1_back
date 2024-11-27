@@ -28,7 +28,7 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     @Query("SELECT AVG(m.usaBoxOffice) FROM Movie m")
     Double findAverageUsaBoxOffice();
 
-    @Query("SELECT m FROM Movie m WHERE m.director = (SELECT MAX(m2.director) FROM Movie m2)")
+    @Query("SELECT m FROM Movie m WHERE m.director.id = (SELECT MAX(m2.director.id) FROM Movie m2)")
     Movie findMovieWithMaxDirector();
 
     @Query("SELECT m FROM Movie m WHERE m.tagline LIKE CONCAT(:prefix, '%')")
@@ -41,8 +41,12 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     Long countMoviesByGenre(@Param("targetGenre") MovieGenre targetGenre);
 
     @Modifying
-    @Query("UPDATE Movie m SET m.oscarsCount = :newOscarsCount WHERE m.genre = :targetGenre")
-    void redistributeOscars(@Param("newOscarCount") int newOscarCount, @Param("targetGenre") MovieGenre targetGenre);
+    @Query("UPDATE Movie m SET m.oscarsCount = m.oscarsCount + :newOscarsCount WHERE m.genre = :targetGenre")
+    void redistributeOscars(@Param("newOscarsCount") int newOscarsCount, @Param("targetGenre") MovieGenre targetGenre);
+
+    @Modifying
+    @Query("UPDATE Movie m SET m.oscarsCount = 0 WHERE m.genre = :sourceGenre")
+    void setZeroOscars(@Param("sourceGenre") MovieGenre sourceGenre);
 
     @Modifying
     @Query("UPDATE Movie m SET m.oscarsCount = m.oscarsCount + 1 WHERE m.length > :length")

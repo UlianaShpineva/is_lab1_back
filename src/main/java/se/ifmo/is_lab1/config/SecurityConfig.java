@@ -32,21 +32,71 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(new JwtAuthEntryPoint()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/index.html", "/favicon.ico", "/static/**").permitAll()
-               .requestMatchers("/api/user/**", "api/**", "/user/role/**", "/ws", "/").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
-//               .requestMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
-//               .requestMatchers(HttpMethod.PUT, "/admin/**").hasRole("ADMIN")
-               .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider());
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new CorsConfiguration();
+                    corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfiguration.setAllowedHeaders(List.of("*"));
+                    corsConfiguration.setAllowCredentials(true);
+                    return corsConfiguration;
+                }));
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/index.html", "/favicon.ico", "/static/**").permitAll()
+//                        .requestMatchers("/api/user/register", "/api/user/login").permitAll() // Разрешаем доступ без аутентификации
+////                        .requestMatchers("/api/user/**", "api/**", "/user/role/**", "/ws", "/").permitAll()
+//                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+//                        .anyRequest().authenticated())
+//                .authenticationProvider(authenticationProvider());
+
         http
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
+//                .exceptionHandling(exception -> exception.authenticationEntryPoint(new JwtAuthEntryPoint()))
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(auth -> auth.requestMatchers("/index.html", "/favicon.ico", "/static/**").permitAll()
+//               .requestMatchers("/api/user/**", "api/**", "/user/role/**", "/ws", "/").permitAll()
+//                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+////               .requestMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
+////               .requestMatchers(HttpMethod.PUT, "/admin/**").hasRole("ADMIN")
+//               .anyRequest().authenticated())
+//                .authenticationProvider(authenticationProvider());
+//        http
+//                .userDetailsService(userDetailsService)
+//                .addFilterBefore(jwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
+//
+//        http
+//                .exceptionHandling(configurer -> configurer.authenticationEntryPoint(userAuthenticationEntryPoint))
+//                .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class)
+//                .csrf(AbstractHttpConfigurer::disable) // Отключаем CSRF, если это необходимо для API
+//                .cors(cors -> cors.configurationSource(request -> {
+//                    var corsConfiguration = new CorsConfiguration();
+//                    corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+//                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//                    corsConfiguration.setAllowedHeaders(List.of("*"));
+//                    corsConfiguration.setAllowCredentials(true);
+//                    return corsConfiguration;
+//                }))
+//                .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(authorize -> authorize
+//                        .requestMatchers("/api/public/**").permitAll()
+//                        .requestMatchers("/api/**").authenticated()
+//                        //.requestMatchers("/", "/index.html", "/static/**").permitAll()
+//                        .anyRequest().permitAll()
+//                )
+//                .formLogin(form -> form
+//                        .loginPage("/login") // Указываем свою страницу авторизации
+//                        .permitAll() // Разрешаем доступ к странице авторизации
+//                )
+//                .logout(logout -> logout
+//                        .logoutUrl("/logout") // URL для выхода
+//                        .permitAll() // Разрешаем доступ к выходу
+//                );
+//
+//        return http.build();
+
     }
 
     @Bean

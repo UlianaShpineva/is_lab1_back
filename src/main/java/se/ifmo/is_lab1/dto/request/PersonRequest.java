@@ -18,10 +18,8 @@ public class PersonRequest {
     @NotNull
     private Color eyeColor; //Поле не может быть null
 
-    @NotNull
     private Color hairColor; //Поле может быть null
 
-    @NotNull
     private Long locationId; //Поле может быть null
 
     @NotNull

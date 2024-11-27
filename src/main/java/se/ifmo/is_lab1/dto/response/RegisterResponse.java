@@ -13,4 +13,5 @@ import se.ifmo.is_lab1.model.enums.Role;
 public class RegisterResponse {
     private String username;
     private Role role;
+    private String token;
 }
