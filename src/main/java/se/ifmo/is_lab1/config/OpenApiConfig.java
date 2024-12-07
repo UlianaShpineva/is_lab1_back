@@ -26,6 +26,6 @@ public class OpenApiConfig {
                                 )
                 )
                 .security(List.of(new SecurityRequirement().addList(securitySchemeName)))
-                .info(new Info().title("StugyGroup manipulator").version("1.0"));
+                .info(new Info().title("Movies service").version("1.0"));
     }
 }

@@ -12,7 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.is_lab1.dto.request.MovieRequest;
 import se.ifmo.is_lab1.dto.request.UpdateMovieRequest;
+import se.ifmo.is_lab1.dto.response.HistoryResponse;
 import se.ifmo.is_lab1.dto.response.MovieResponse;
+import se.ifmo.is_lab1.model.History;
 import se.ifmo.is_lab1.model.enums.MovieGenre;
 import se.ifmo.is_lab1.service.MovieService;
 
@@ -30,20 +32,8 @@ public class MovieController {
     }
 
     @GetMapping("/all_movies")
-//    public Page<MovieResponse> getAllMovies(
-//            @RequestParam(defaultValue = "0") Integer page,
-//            @RequestParam(defaultValue = "10") Integer size,
-//            @RequestParam(defaultValue = "id") String sortBy,
-//            @RequestParam(defaultValue = "asc") String sortDirection,
-//            @RequestParam(required = false) String movieName,
-//            @RequestParam(required = false) String directorName
-//    ) {
     public List<MovieResponse> getAllMovies(){
-//        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
-//                ? Sort.Direction.DESC
-//                : Sort.Direction.ASC;
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return movieService.getAllMovies();//pageable, movieName, adminName);
+        return movieService.getAllMovies();
     }
 
     @PostMapping("/create")
@@ -95,5 +85,10 @@ public class MovieController {
         }
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         return userDetails.getUsername();
+    }
+
+    @GetMapping("/history")
+    public List<HistoryResponse> getMovieHistory() {
+        return movieService.getHistory();
     }
 }

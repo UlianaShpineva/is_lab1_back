@@ -14,14 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.is_lab1.dto.request.MovieRequest;
 import se.ifmo.is_lab1.dto.request.UpdateMovieRequest;
+import se.ifmo.is_lab1.dto.response.HistoryResponse;
 import se.ifmo.is_lab1.dto.response.MovieResponse;
 import se.ifmo.is_lab1.dto.response.UserResponse;
 import se.ifmo.is_lab1.exceptions.*;
-import se.ifmo.is_lab1.model.Location;
-import se.ifmo.is_lab1.model.Movie;
-import se.ifmo.is_lab1.model.Person;
-import se.ifmo.is_lab1.model.User;
+import se.ifmo.is_lab1.model.*;
 import se.ifmo.is_lab1.model.enums.MovieGenre;
+import se.ifmo.is_lab1.model.enums.OperationType;
 import se.ifmo.is_lab1.model.enums.Role;
 import se.ifmo.is_lab1.repository.*;
 
@@ -38,7 +37,7 @@ public class MovieService {
     private final PersonRepository personRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
-    private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
+    private final HistoryRepository historyRepository;
 
     public MovieResponse getMovie(Integer id) {
         Movie movie = movieRepository.findById(id)
@@ -46,19 +45,12 @@ public class MovieService {
         return toMovieResponse(movie);
     }
 
-    public List<MovieResponse> getAllMovies(){//Pageable pageable, Page<MovieResponse> getAllMovies(){//Pageable pageable,
-//                                            String movieName,
-//                                            String directorName) {
-//        Page<Movie> movies =
-//                movieRepository.findByFilter(
-//                        movieName, directorName, pageable
-//                );
+    public List<MovieResponse> getAllMovies(){
         List<Movie> movies = movieRepository.findAll();
         return movies
                 .stream()
                 .map(this::toMovieResponse)
                 .toList();
-//        return movies.map(this::toMovieResponse);
     }
 
     public MovieResponse createMovie(MovieRequest movieRequest, String username) {
@@ -95,6 +87,13 @@ public class MovieService {
         );
         requestObject.setUser(user);
         Movie savedMovie = movieRepository.save(requestObject);
+        historyRepository.save(History
+                .builder()
+                        .movieId(savedMovie.getId())
+                        .userId(user.getId())
+                        .operationType(OperationType.CREATE)
+                        .timeOp(savedMovie.getCreationDate())
+                .build());
         return toMovieResponse(savedMovie);
     }
 
@@ -135,6 +134,14 @@ public class MovieService {
             );
         }
         Movie response = movieRepository.save(existingMovie);
+        Date now = new Date();
+        historyRepository.save(History
+                .builder()
+                .movieId(response.getId())
+                .userId(user.getId())
+                .operationType(OperationType.UPDATE)
+                .timeOp(now)
+                .build());
         return toMovieResponse(response);
     }
 
@@ -145,7 +152,8 @@ public class MovieService {
                 .orElseThrow(MovieNotFoundException::new)
                 .getUser()
                 .getId()
-                .equals(user.getId())) {
+                .equals(user.getId()) &&
+        !user.getRole().equals(Role.ADMIN)) {
             throw new NoAccessToObjectException();
         }
         Movie movie = movieRepository.findById(objectId)
@@ -165,6 +173,16 @@ public class MovieService {
         } else {
             throw new MovieIsConnectedException();
         }
+        Date now = new Date();
+        historyRepository.save(History
+                .builder()
+                .movieId(movie.getId())
+                .userId(movie
+                        .getUser()
+                        .getId())
+                .operationType(OperationType.UPDATE)
+                .timeOp(now)
+                .build());
         return toMovieResponse(movie);
     }
 
@@ -259,5 +277,22 @@ public class MovieService {
     @Transactional
     public void addOscarsToLongMovies(int length) {
         movieRepository.addOscarsToLongMovies(length);
+    }
+
+    public List<HistoryResponse> getHistory() {
+        List<History> notes = historyRepository.findAll();
+        return notes
+                .stream()
+                .map(this::toHistoryResponse)
+                .toList();
+    }
+
+    private HistoryResponse toHistoryResponse(History history) {
+        return HistoryResponse.builder()
+                .movieId(history.getMovieId())
+                .operationType(history.getOperationType())
+                .userId(history.getUserId())
+                .timeOp(history.getTimeOp())
+                .build();
     }
 }

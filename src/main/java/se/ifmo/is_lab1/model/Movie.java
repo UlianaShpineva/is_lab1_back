@@ -69,13 +69,8 @@ public class Movie implements Serializable {
     @Column
     private MovieGenre genre; //Поле может быть null
 
-//    @Column
-//    @NotNull
-//    private Boolean isEditable = Boolean.FALSE;
-
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn
     private User user;
-
 }
